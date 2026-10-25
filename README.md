@@ -1,43 +1,41 @@
 # QuestTime ✨
 
-**A free, mobile-friendly quest and screen-time rewards tracker.**
+**A free, mobile-friendly quest and screen-time rewards platform.**
 
-QuestTime turns real-life tasks into quests. Complete quests to earn coins and XP, level up, unlock achievements, and redeem coins for tracked screen-time rewards.
+QuestTime turns real-life tasks into quests. Complete quests to earn coins and XP, level up, unlock achievements, and redeem rewards.
 
-## Features in the MVP
+## Current features
 
-- Mobile-first dashboard
-- Built-in and custom quests
-- Coins, XP, levels, and progress bar
-- Daily quest streaks
-- Achievement badges
-- Rewards shop with 15, 30, 60, and 90-minute rewards
-- Earned-minute balance and redemption history
-- Activity history and JSON backup export
-- Local browser storage; no account, backend, paid API, or subscription required
+- Email/password accounts with Supabase authentication
+- Per-account cloud save (requires running `supabase/schema.sql`)
+- Built-in and custom quests, coins, XP, levels, streaks, and achievement badges
+- Rewards shop and tracked earned-minute balance
+- Customizable app access rules: choose apps that require credits, set a per-app coin cost and pass length, and add your own app entries
+- Virtual timed app passes and app-pass history
+- JSON backup export and progress reset
 
 ## Run it
 
-Open `index.html` in a browser, or publish this repository with GitHub Pages.
+GitHub Pages: https://jamesonrb2013.github.io/QuestTime/
 
-### Enable GitHub Pages
+## Supabase setup
 
-1. Open this repository's **Settings**.
-2. Select **Pages** under **Code and automation**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Choose branch **main** and folder **/(root)**, then click **Save**.
-5. Wait for the deployment to finish. The site should be available at `https://jamesonrb2013.github.io/QuestTime/`.
+1. Open the Supabase project SQL Editor.
+2. Paste and run [supabase/schema.sql](supabase/schema.sql).
+3. In Supabase Authentication URL configuration, set the Site URL to `https://jamesonrb2013.github.io/QuestTime/` and add it as an allowed redirect URL.
 
-## Important limitations
+Only use the publishable browser key in `index.html`. Never put a service-role key or database password in browser code.
 
-This is a web app, not a native iOS Screen Time controller. Redeeming a reward tracks minutes inside QuestTime; it does **not** currently block or unblock other iPhone apps or enforce a timer. Native blocking would require a separate iOS app and Apple's Screen Time APIs and entitlements.
+## App locking status
 
-Progress is stored in the current browser on the current device. It is not synced across devices. Export a backup before clearing browser data.
+The web App Lock page stores each user's app list, whether an app should require coins, the credit price, the pass duration, and virtual passes. **The website cannot actually block or unblock iPhone apps.** Real blocking requires the native iOS Screen Time frameworks, Apple's Family Controls entitlement, explicit user authorization, and monitor/shield extensions.
+
+Native groundwork and setup notes: [ios/QuestTimeScreenTime/README.md](ios/QuestTimeScreenTime/README.md).
 
 ## Privacy
 
-QuestTime's MVP has no server-side account or analytics. Quest data and progress are stored locally in the browser with `localStorage`. Anyone with access to the same browser profile may be able to view or change that data.
+QuestTime uses Supabase authentication and a per-user row protected by Row Level Security when the database schema is configured. Progress is also cached in the browser for responsiveness. Export a backup before clearing browser data. App-lock preferences on the website are not enforced by iOS.
 
-## Project status
+## Status
 
-MVP v0.1.0 — actively being built.
+Active build. The website is an evolving platform; native iOS blocking is not complete yet.
