@@ -10,8 +10,8 @@ struct QuestTimeLockSetupView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("App locking permission") {
-                    Text("QuestTime can shield only the apps and categories you choose. You can change this list later.")
+                Section("Screen Time permission") {
+                    Text("QuestTime can shield only the apps, categories, and websites you choose. You can change this list later.")
                     Button("Enable Screen Time access") {
                         Task {
                             do {
@@ -24,19 +24,52 @@ struct QuestTimeLockSetupView: View {
                     }
                     Text(message).font(.footnote)
                 }
-                Section("Your locked-app list") {
+
+                Section("Choose what to lock") {
                     Button("Choose apps and websites") { showingPicker = true }
                     Text("\(manager.selection.applicationTokens.count) apps, \(manager.selection.categoryTokens.count) categories, and \(manager.selection.webDomainTokens.count) websites selected")
                         .font(.footnote)
-                }
-                Section("Apply rules") {
                     Button("Shield selected apps now") {
+                        guard manager.authorizationStatus == .approved else {
+                            message = "Enable Screen Time access first."
+                            return
+                        }
+                        guard !manager.selection.applicationTokens.isEmpty
+                                || !manager.selection.categoryTokens.isEmpty
+                                || !manager.selection.webDomainTokens.isEmpty else {
+                            message = "Choose at least one app, category, or website first."
+                            return
+                        }
                         manager.applyConfiguredShields()
-                        message = "Selected apps are shielded on this device."
+                        message = "QuestTime shields are active for your selected items."
                     }
-                    Button("Clear QuestTime shields", role: .destructive) {
-                        manager.clearConfiguredShields()
-                        message = "QuestTime shields were cleared."
+                }
+
+                Section("Timed pass test") {
+                    Text("This local test temporarily removes QuestTime's shields, then the monitor extension should re-apply them after 15 minutes. It does not spend coins or validate a real reward yet.")
+                        .font(.footnote)
+                    Button("Start 15-minute test pass") {
+                        guard manager.authorizationStatus == .approved else {
+                            message = "Enable Screen Time access first."
+                            return
+                        }
+                        guard !manager.selection.applicationTokens.isEmpty
+                                || !manager.selection.categoryTokens.isEmpty
+                                || !manager.selection.webDomainTokens.isEmpty else {
+                            message = "Choose at least one app, category, or website first."
+                            return
+                        }
+                        do {
+                            try manager.schedulePassEnd(after: 15)
+                            manager.clearConfiguredShields()
+                            message = "Test pass started. QuestTime should re-shield your selection after 15 minutes."
+                        } catch {
+                            message = "Could not schedule the pass timer: \(error.localizedDescription). Shields were not cleared."
+                        }
+                    }
+                    Button("End test pass and lock now", role: .destructive) {
+                        manager.applyConfiguredShields()
+                        message = "QuestTime shields were applied again."
                     }
                 }
             }
